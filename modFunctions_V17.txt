@@ -10,7 +10,7 @@
 '4/13/17 TLN added Last Price Function
 '4/28/17 TLN added Yahoo pricing 
 '6/16/17 TLN added marketHolidays() and IsWeekend
-'7/11/17 TLN Test for Git
+
 
 Function emailDistribution() As Collection
     Dim emailList_ As New Collection

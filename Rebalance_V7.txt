@@ -11,7 +11,7 @@ Sub Rebalance()
 ' TLN 6/07/17 Updated to use only three files
 ' TLN 6/28/17 added function to remove trades from DCA file
 ' TLN 7/07/17 added FIDO exception list and check if input trade is within range
-' TLN 7/11/17 Test for Git
+
 
 'schwab and fido trade date
 
