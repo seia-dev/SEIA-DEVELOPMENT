@@ -1,0 +1,644 @@
+Sub ComplianceLargeHoldings()
+' Created on 3/28/17 by Ronald Reyes
+' Download 0820-3701 and save S:\Trading Dept\Ron Reyes\Schwab Files\Position
+' 4/28/17 Add Slicer
+' 5/3/17 TLN Updated slicer
+' 6/22/17 TLN addeed filter for market value <50000
+
+Application.ScreenUpdating = False
+
+    Dim w1 As Workbook
+    Set w1 = ActiveWorkbook
+    
+'--------------------------------------------------------------------------------------
+'Test if crmexact - ACCT DATA.CSV is open
+
+        ChDrive "S"
+        ChDir "S:\Global Databases\CRM"
+
+        Dim TestWorkbook As Workbook
+
+        Set TestWorkbook = Nothing
+        On Error Resume Next
+        Set TestWorkbook = Workbooks("crmexact - ACCT DATA.CSV")
+        On Error GoTo 0
+    
+        If TestWorkbook Is Nothing Then
+        
+            'MsgBox "FILE IS NOT OPEN"
+        
+            '================================================================================================
+            'Workbooks.Open ("S:\D-I-M-E-S\Office Use Only\Portfolio Management\Accounts\SAS Acct Data" & ".xlsx")
+            Workbooks.Open ("S:\Global Databases\CRM\crmexact - ACCT DATA" & ".CSV")
+            '================================================================================================
+        
+            Dim w2 As Workbook
+            Set w2 = ActiveWorkbook
+            
+        Else
+        
+            MsgBox "crmexact - ACCT DATA.CSV is open" & vbNewLine & "Please Close File"
+            
+            Exit Sub
+        
+        
+        End If
+'--------------------------------------------------------------------------------------
+'--------------------------------------------------------------------------------------
+'Test if CRM.xlsx is open
+
+        ChDrive "S"
+        ChDir "S:\Global Databases\CRM"
+
+'        Dim TestWorkbook As Workbook
+
+        Set TestWorkbook = Nothing
+        On Error Resume Next
+        Set TestWorkbook = Workbooks("CRM.xlsx")
+        On Error GoTo 0
+    
+        If TestWorkbook Is Nothing Then
+        
+            'MsgBox "FILE IS NOT OPEN"
+        
+            '================================================================================================
+            'Workbooks.Open ("S:\D-I-M-E-S\Office Use Only\Portfolio Management\Accounts\SAS Acct Data" & ".xlsx")
+            Workbooks.Open ("S:\Global Databases\CRM\CRM" & ".xlsx")
+            '================================================================================================
+        
+            Dim w3 As Workbook
+            Set w3 = ActiveWorkbook
+            
+        Else
+        
+            MsgBox "CRM.xlsx is open" & vbNewLine & "Please Close File"
+            
+            Exit Sub
+        
+        
+        End If
+'--------------------------------------------------------------------------------------
+    
+    w1.Activate
+    
+'Delete columns
+    Columns("E:K").Select
+    Selection.Delete Shift:=xlToLeft
+
+'Column headers
+    Range("B1").Select
+    ActiveCell.FormulaR1C1 = "Account"
+    Range("C1").Select
+    ActiveCell.FormulaR1C1 = "Name"
+    Range("F1").Select
+    ActiveCell.FormulaR1C1 = "Total Acct Value"
+    Range("G1").Select
+    ActiveCell.FormulaR1C1 = "% of Acct Value"
+    Range("H1").Select
+    ActiveCell.FormulaR1C1 = "Total Household Value"
+    Range("I1").Select
+    ActiveCell.FormulaR1C1 = "% of Household"
+    Range("J1").Select
+    ActiveCell.FormulaR1C1 = "Advisor"
+    Range("K1").Select
+    ActiveCell.FormulaR1C1 = "Engagement Date"
+
+
+'vlookup
+    Range("F2").Select
+    ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-4],'crmexact - ACCT DATA.csv'!C1:C6,6,0)"
+    Range("G2").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=RC[-2]/RC[-1]"
+    Range("H2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=VLOOKUP(C[-6],'crmexact - ACCT DATA.csv'!C1:C58,58,0)"
+    Range("I2").Select
+    Application.CutCopyMode = False
+    ActiveCell.FormulaR1C1 = "=RC[-4]/RC[-1]"
+    Range("J2").Select
+    ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-8],'crmexact - ACCT DATA.csv'!C1:C3,3,0)"
+    Range("K2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=VLOOKUP(C[-9],'crmexact - ACCT DATA.csv'!C1:C36,36,0)"
+        
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 5).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 6).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+    
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 7).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+    
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 8).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+    
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 9).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+    
+    Range("A1").Select
+    Selection.End(xlDown).Select
+    ActiveCell.Offset(0, 10).Select
+    Range(Selection, Selection.End(xlUp)).Select
+    Selection.FillDown
+    
+'Close crmexact - ACCT DATA.CSV & CRM.xlsx
+    w2.Activate
+    Application.DisplayAlerts = False
+    w2.Close
+    w3.Close
+    Application.DisplayAlerts = True
+    w1.Activate
+
+'Format $, % and Date
+    Range("E:F,H:H").Select
+    Range("H1").Activate
+    Selection.Style = "Currency"
+    Selection.NumberFormat = "_($* #,##0.00_);_($* (#,##0.00);_($* ""-""??_);_(@_)"
+    Range("G:G,I:I").Select
+    Range("I1").Activate
+    Selection.Style = "Percent"
+
+    Columns("K:K").Select
+    Selection.NumberFormat = "m/d/yyyy"
+
+'Filter >25% and >10%
+    Rows("1:1").Select
+    Selection.AutoFilter
+    ActiveSheet.UsedRange.AutoFilter Field:=7, Criteria1:=">.25" _
+        , Operator:=xlAnd
+    ActiveSheet.UsedRange.AutoFilter Field:=9, Criteria1:=">.1", _
+        Operator:=xlAnd
+    ActiveSheet.UsedRange.AutoFilter Field:=5, Criteria1:=">50000", _
+        Operator:=xlAnd
+'Filter market value <50,000
+
+
+
+'    Selection.AutoFilter
+'    ActiveSheet.UsedRange.AutoFilter Field:=6, Criteria1:=">10000", _
+'        Operator:=xlAnd
+'    ActiveSheet.UsedRange.AutoFilter Field:=8, Criteria1:=">100000"
+    
+'copy to new workbook
+    ActiveSheet.UsedRange.Copy
+    Workbooks.Add
+    ActiveSheet.Paste
+    
+    Dim w4 As Workbook
+    Set w4 = ActiveWorkbook
+    
+    w1.Activate
+    Application.DisplayAlerts = False
+    w1.Close
+    Application.DisplayAlerts = True
+    w4.Activate
+    
+    Selection.AutoFilter
+    ActiveSheet.UsedRange.AutoFilter Field:=6, Criteria1:=">10000", _
+        Operator:=xlAnd
+    ActiveSheet.UsedRange.AutoFilter Field:=8, Criteria1:=">100000"
+    
+'copy to new workbook
+    ActiveSheet.UsedRange.Copy
+    Workbooks.Add
+    ActiveSheet.Paste
+ 
+    Dim w5 As Workbook
+    Set w5 = ActiveWorkbook
+    
+    w4.Activate
+    Application.DisplayAlerts = False
+    w4.Close
+    Application.DisplayAlerts = True
+    w5.Activate
+
+'Format cells
+    Range("G:G,I:I").Select
+    Range("I1").Activate
+    Application.CutCopyMode = False
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Range("G2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 10092543
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    Range("I2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    Range("A1").Select
+    Range(Selection, Selection.End(xlToRight)).Select
+    Selection.Font.Bold = True
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorDark2
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlBottom
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+    Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideVertical)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+        .LineStyle = xlContinuous
+        .ColorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    
+    Columns("E:K").EntireColumn.AutoFit
+    
+    Range("A1").Select
+    
+    ActiveSheet.Name = "Large Holdings"
+
+
+'create variable for current wb
+Dim w6 As Worksheet
+Set w6 = ActiveSheet
+
+
+Dim w7 As Worksheet
+
+
+Rows("1:1").Select
+Selection.Copy
+
+
+Set w7 = Sheets.Add
+w7.Name = "Cash"
+
+
+Sheets("Cash").Select
+Rows("1:1").Select
+ActiveSheet.Paste
+
+
+w6.Activate
+
+
+ Dim wordList As New Collection
+
+   
+    wordList.Add ("cash")
+    wordList.Add ("snvxx")
+    wordList.Add ("snoxx")
+    wordList.Add ("swwxx")
+    wordList.Add ("swkxx")
+    wordList.Add ("sowxx")
+    wordList.Add ("swlxx")
+    wordList.Add ("swtxx")
+    wordList.Add ("swyxx")
+    wordList.Add ("swrxx")
+    wordList.Add ("swixx")
+    wordList.Add ("swvxx")
+    wordList.Add ("swbxx")
+    wordList.Add ("swaxx")
+    wordList.Add ("snaxx")
+    wordList.Add ("swgxx")
+    wordList.Add ("sntxx")
+    wordList.Add ("swuxx")
+    wordList.Add ("swfxx")
+    wordList.Add ("swcxx")
+    wordList.Add ("swdxx")
+    wordList.Add ("swxxx")
+    wordList.Add ("swjxx")
+    wordList.Add ("swnxx")
+    wordList.Add ("swexx")
+    wordList.Add ("swqxx")
+    wordList.Add ("swzxx")
+    wordList.Add ("swmxx")
+    
+    
+    For i = 1 To wordList.Count
+
+        Dim partialString As String
+        Dim Firstrow As Long
+        Dim LastRow As Long
+        Dim Lrow As Long
+        Dim CalcMode As Long
+        Dim ViewMode As Long
+        Dim currentValue As String
+        
+        With Application
+            CalcMode = .Calculation
+            .Calculation = xlCalculationManual
+            .ScreenUpdating = False
+        End With
+        
+        
+        partialString = wordList(i)
+        
+     
+        'We use the ActiveSheet but you can replace this with
+        'Sheets("MySheet")if you want
+        With ActiveSheet
+    
+            'We select the sheet so we can change the window view
+            .Select
+    
+            'If you are in Page Break Preview Or Page Layout view go
+            'back to normal view, we do this for speed
+            ViewMode = ActiveWindow.View
+            ActiveWindow.View = xlNormalView
+    
+            'Turn off Page Breaks, we do this for speed
+            .DisplayPageBreaks = False
+    
+            'Set the first and last row to loop through
+            Firstrow = .UsedRange.Cells(1).Row + 1
+            LastRow = .UsedRange.Rows(.UsedRange.Rows.Count).Row
+    
+            'We loop from Lastrow to Firstrow (bottom to top)
+            For Lrow = Firstrow To LastRow
+    
+                'We check the values in the A column1 in this example
+                With .Cells(Lrow, 4)
+    
+                    If Not IsError(.Value) Then
+                        
+                        
+                        currentValue = Trim(.Value)
+                       
+                      
+                        If (InStr(1, UCase(currentValue), UCase(partialString))) > 0 Then
+                        
+                                Rows(Lrow & ":" & Lrow).Select
+                                Selection.Copy
+                                w7.Cells(Rows.Count, 1).End(xlUp).Offset(1, 0).PasteSpecial
+                                .EntireRow.Delete
+                                Lrow = Lrow - 1
+                                
+                        End If
+  
+
+                    End If
+    
+                End With
+    
+            Next Lrow
+    
+        End With
+    
+            ActiveWindow.View = ViewMode
+            With Application
+                .ScreenUpdating = True
+                .Calculation = CalcMode
+        End With
+
+
+    Next i
+
+
+    Set wordList = Nothing
+
+    Sheets("Cash").Select
+    Sheets("Cash").Move After:=Sheets(2)
+    
+    
+    'Autofit Columns
+    Cells.Select
+    Cells.EntireColumn.AutoFit
+    
+    Sheets("Large Holdings").Select
+    
+ 
+'-------------------------------------Add Slicer------------------------------------------------
+Call LargeHoldingSlicer
+'-------------------------------------Add Slicer------------------------------------------------
+
+'save file in compliance folder
+
+    Dim myValue As Variant
+
+    myValue = InputBox("Please enter the date for this file to be saved as." & vbNewLine & "NOTE: Date Format should be MM-DD-YY")
+    
+    On Error Resume Next
+    ActiveWorkbook.SaveAs "S:\Trading Dept\Ron Reyes\Compliance\" & "Compliance Large Holdings " & myValue & ".xlsx", FileFormat:=51
+    On Error GoTo 0
+    
+    
+    
+'Save File
+
+    ChDrive "C"
+    ChDir "C:\Users\" & Environ("username") & "\Desktop"
+
+    Application.DisplayAlerts = False
+    ActiveWorkbook.SaveAs " " & Format(Now, "MM-DD-YY") & ".xlsx"
+'    Workbooks("Compliance Large Holdings " & Format(Now, "MM-DD-YY") & ".xlsx").Close
+    Application.DisplayAlerts = True
+    
+
+    
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        Dim image As Variant
+        Dim rng As Range
+        
+        Set rng = Nothing
+        
+        Set rng = ActiveSheet.UsedRange.SpecialCells(xlCellTypeVisible)
+        
+        image = RangetoHTML(rng)
+       
+    
+            With Application
+                .EnableEvents = False
+                .ScreenUpdating = False
+            End With
+        
+            Set OutApp = CreateObject("Outlook.Application")
+            Set OutMail = OutApp.CreateItem(0)
+        
+            On Error Resume Next
+            With OutMail
+                .To = "rposner@seia.com"
+                .cc = ""
+                .bcc = "rreyes@seia.com"
+                .Subject = "Compliance - InvestmentGradeBonds"
+'                .HTMLbody = image
+                .Attachments.Add ActiveWorkbook.FullName
+                .Display  'or use .Send
+            End With
+            On Error GoTo 0
+            
+            
+            With Application
+                .EnableEvents = True
+                .ScreenUpdating = True
+            End With
+        
+            Set OutMail = Nothing
+            Set OutApp = Nothing
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+MsgBox "DONE"
+
+Application.ScreenUpdating = True
+
+End Sub
+
+
+Function LargeHoldingSlicer()
+
+    Dim w As Worksheet
+    Dim rng As Range
+    Dim rng1 As Range
+
+    Set w = ActiveSheet
+    
+    Set rng = ActiveSheet.UsedRange
+    w.UsedRange.Select
+
+
+    Application.CutCopyMode = False
+    ActiveSheet.ListObjects.Add(xlSrcRange, rng, , xlYes).Name = _
+        "Table1"
+    Range("Table1[#All]").Select
+    ActiveWorkbook.SlicerCaches.Add2(ActiveSheet.ListObjects("Table1"), "Advisor"). _
+        Slicers.Add ActiveSheet, , "Advisor", "Advisor", 197.25, 639.75, 144, 198.75
+    ActiveSheet.Shapes.Range(Array("Advisor")).Select
+
+  ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim lColumn As Long
+
+    lColumn = ActiveSheet.UsedRange.Columns.Count
+
+    lColumn = lColumn + 2
+    
+    Dim vArr
+    vArr = Split(Cells(1, lColumn).Address(True, False), "$")
+    Col_Letter = vArr(0)
+        
+        
+
+    With ActiveSheet.Shapes("Advisor")
+        .Top = Range(Col_Letter & lColumn).Top
+        .Left = Range(Col_Letter & lColumn).Left
+    End With
+    
+    ActiveSheet.Shapes("Advisor").IncrementTop -163.5
+  ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+    Sheets("Cash").Select
+    
+    Dim w2 As Worksheet
+
+
+    Set w2 = ActiveSheet
+    
+    Set rng1 = ActiveSheet.UsedRange
+    w2.UsedRange.Select
+    
+  
+    Application.CutCopyMode = False
+    ActiveSheet.ListObjects.Add(xlSrcRange, rng1, , xlYes).Name = _
+        "Table2"
+    Range("Table2[#All]").Select
+    ActiveWindow.SmallScroll Down:=-30
+    ActiveWorkbook.SlicerCaches.Add2(ActiveSheet.ListObjects("Table2"), "Advisor"). _
+        Slicers.Add ActiveSheet, , "Advisor 1", "Advisor", 197.25, 639.75, 144, 198.75
+    ActiveSheet.Shapes.Range(Array("Advisor 1")).Select
+    
+      ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim lColumn2 As Long
+
+    lColumn2 = ActiveSheet.UsedRange.Columns.Count
+
+    lColumn2 = lColumn2 + 2
+    
+    Dim vArr1
+    vArr1 = Split(Cells(1, lColumn2).Address(True, False), "$")
+    Col_Letter = vArr1(0)
+        
+    
+    With ActiveSheet.Shapes("Advisor 1")
+        .Top = Range(Col_Letter & lColumn2).Top
+        .Left = Range(Col_Letter & lColumn2).Left
+    End With
+    
+    ActiveSheet.Shapes("Advisor 1").IncrementTop -163.5
+  ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+End Function
+
+

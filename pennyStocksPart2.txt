@@ -1,0 +1,350 @@
+Sub pennyStocksPart2()
+' 07/06/17 TLN excluded records where total value <5%; formatted columns E,F,H,M to currency; added total household value column
+
+
+Dim wb_start As Workbook
+Set wb_start = ActiveWorkbook
+
+
+Dim ws_main As Worksheet
+Set ws_main = Sheets("Sheet1")
+
+
+'part two
+
+ws_main.Activate
+
+Range("F1").Select
+ActiveCell.FormulaR1C1 = "Primary Exchange"
+
+Range("G1").Select
+ActiveCell.FormulaR1C1 = "MKT CAP"
+
+
+
+Range("F2").Select
+    ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-4],Sheet2!C[-5]:C[-2],3,0)"
+
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 5).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+Range("G2").Select
+    ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-5],Sheet2!C[-6]:C[-3],4,0)"
+
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 6).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+'remove decimals from colmun G
+ws_main.Range("G:G").NumberFormat = "0"
+
+
+
+'--------------------------------------------------------------------------------------
+'Test if crmexact - ACCT DATA.CSV is open
+
+        ChDrive "S"
+        ChDir "S:\Global Databases\CRM"
+
+        Dim TestWorkbook As Workbook
+
+        Set TestWorkbook = Nothing
+        On Error Resume Next
+        Set TestWorkbook = Workbooks("crmexact - ACCT DATA.CSV")
+        On Error GoTo 0
+
+        If TestWorkbook Is Nothing Then
+
+            'MsgBox "FILE IS NOT OPEN"
+
+            '================================================================================================
+            'Workbooks.Open ("S:\D-I-M-E-S\Office Use Only\Portfolio Management\Accounts\SAS Acct Data" & ".xlsx")
+            Workbooks.Open ("S:\Global Databases\CRM\crmexact - ACCT DATA" & ".CSV")
+            '================================================================================================
+
+            Dim w2 As Workbook
+            Set w2 = ActiveWorkbook
+
+        Else
+
+            MsgBox "crmexact - ACCT DATA.CSV is open" & vbNewLine & "Please Close File"
+
+            Exit Sub
+
+
+        End If
+'--------------------------------------------------------------------------------------
+
+ws_main.Activate
+
+Range("H1").Select
+ActiveCell.FormulaR1C1 = "Advisor"
+
+Range("I1").Select
+ActiveCell.FormulaR1C1 = "Platform"
+
+Range("J1").Select
+ActiveCell.FormulaR1C1 = "Stage"
+
+Range("K1").Select
+ActiveCell.FormulaR1C1 = "Engagement Date"
+
+
+Range("H2").Select
+ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-7],'crmexact - ACCT DATA.csv'!C1:C3,3,0)"
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 7).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+
+Range("I2").Select
+ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-8],'crmexact - ACCT DATA.csv'!C1:C5,5,0)"
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 8).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+Range("J2").Select
+ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-9],'crmexact - ACCT DATA.csv'!C1:C23,23,0)"
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 9).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+Range("K2").Select
+ActiveCell.FormulaR1C1 = "=VLOOKUP(C[-10],'crmexact - ACCT DATA.csv'!C1:C36,36,0)"
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 10).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+Columns("K:K").Select
+Selection.NumberFormat = "m/d/yyyy"
+
+
+Columns("B:B").Select
+Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+
+
+Range("B1").Select
+ActiveCell.FormulaR1C1 = "Name"
+
+Range("B2").Select
+
+ActiveCell.FormulaR1C1 = _
+        "=VLOOKUP(C[-1],'crmexact - ACCT DATA.csv'!C1:C10,10,0)"
+
+
+
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 1).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+Cells.Select
+Cells.EntireColumn.AutoFit
+
+
+
+
+'add filter for N/A and 250,000,000
+ActiveSheet.UsedRange.AutoFilter Field:=8, Criteria1:="=*N/A*", _
+    Operator:=xlOr, Criteria2:="<250000000"
+
+
+Application.DisplayAlerts = False
+w2.Close
+Application.DisplayAlerts = True
+
+
+'copy usedrange and copy onto new workbook and save in compliance folder
+ActiveSheet.UsedRange.Copy
+
+Set NewBook = Workbooks.Add
+
+
+NewBook.Worksheets("Sheet1").Range("A1").PasteSpecial (xlPasteValues)
+
+Dim wb_final As Workbook
+Set wb_final = ActiveWorkbook
+
+
+
+Application.DisplayAlerts = False
+wb_start.Close
+Application.DisplayAlerts = True
+
+Columns("L:L").Select
+Selection.NumberFormat = "m/d/yyyy"
+
+
+ActiveSheet.Range("H:H").NumberFormat = "0"
+
+
+'filter total amount by <5%
+'--------------------------------------------------------------------------------------
+'Test if crmexact - ACCT DATA.CSV is open
+
+        ChDrive "S"
+        ChDir "S:\Global Databases\CRM"
+
+        Dim TestWorkbook2 As Workbook
+
+        Set TestWorkbook2 = Nothing
+        On Error Resume Next
+        Set TestWorkbook2 = Workbooks("crmexact - ACCT DATA.CSV")
+        On Error GoTo 0
+
+        If TestWorkbook2 Is Nothing Then
+
+            'MsgBox "FILE IS NOT OPEN"
+
+            '================================================================================================
+            'Workbooks.Open ("S:\D-I-M-E-S\Office Use Only\Portfolio Management\Accounts\SAS Acct Data" & ".xlsx")
+            Workbooks.Open ("S:\Global Databases\CRM\crmexact - ACCT DATA" & ".CSV")
+            '================================================================================================
+
+            Dim w3 As Workbook
+            Set w3 = ActiveWorkbook
+
+        Else
+
+            MsgBox "crmexact - ACCT DATA.CSV is open" & vbNewLine & "Please Close File"
+
+            Exit Sub
+
+
+        End If
+'--------------------------------------------------------------------------------------
+
+wb_final.Activate
+
+Range("M1").Select
+ActiveCell.FormulaR1C1 = "Total Household Value"
+
+Range("M2").Select
+ActiveCell.FormulaR1C1 = _
+    "=VLOOKUP(C[-12],'crmexact - ACCT DATA.csv'!C1:C58,58,0)"
+    
+        
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 12).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+Columns("M:M").Select
+Application.CutCopyMode = False
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+    :=False, Transpose:=False
+Application.CutCopyMode = False
+
+
+
+Application.DisplayAlerts = False
+w3.Close
+Application.DisplayAlerts = True
+
+
+Range("N2").Select
+ActiveCell.FormulaR1C1 = "=RC[-8]/RC[-1]"
+
+
+
+Range("A1").Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 13).Select
+Range(Selection, Selection.End(xlUp)).Select
+Selection.FillDown
+
+
+'remove rows where stock price is less than or equal to 5
+
+
+Dim LR As Long
+Dim i As Integer
+
+LR = Cells(Rows.Count, "A").End(xlUp).Row
+
+For i = 2 To LR
+    
+    If (Cells(i, "N").Value <= 0.05) And (Cells(i, "N").Value <> "") Then
+
+        Rows(i).EntireRow.Delete
+        i = i - 1
+    
+    End If
+
+Next i
+
+'remove columns M and N
+Columns("N:N").Select
+Selection.Delete Shift:=xlToLeft
+    
+
+Cells.Select
+Cells.EntireColumn.AutoFit
+
+
+
+'format columns to currency for columns E,F,H, and M
+Columns("E:E").Select
+Selection.NumberFormat = "$#,##0.00"
+
+Columns("F:F").Select
+Selection.NumberFormat = "$#,##0.00"
+
+Columns("H:H").Select
+Selection.NumberFormat = "$#,##0"
+
+Columns("M:M").Select
+Selection.NumberFormat = "$#,##0.00"
+
+    
+
+'add slicer
+Call Slicer
+
+
+'save file to default path
+Dim myValue As Variant
+
+myValue = InputBox("Please enter the date for this file to be saved as." & vbNewLine & "NOTE: Date Format should be MM-DD-YY")
+
+On Error Resume Next
+ActiveWorkbook.SaveAs "S:\Trading Dept\Ron Reyes\Compliance\" & "Compliance Penny Stock Report " & myValue & ".xlsx", FileFormat:=51
+On Error GoTo 0
+    
+MsgBox "Done"
+
+
+End Sub
+
+
+
+
