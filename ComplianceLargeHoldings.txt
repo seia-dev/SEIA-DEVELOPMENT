@@ -4,6 +4,7 @@ Sub ComplianceLargeHoldings()
 ' 4/28/17 Add Slicer
 ' 5/3/17 TLN Updated slicer
 ' 6/22/17 TLN addeed filter for market value <50000
+' test
 
 Application.ScreenUpdating = False
 
